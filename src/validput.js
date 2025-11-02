@@ -1,3 +1,5 @@
+import { FakeDOMTokenList } from "./dom-token-list.js";
+
 /**
  * @typedef {(HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)} FormControl
  */
@@ -15,19 +17,61 @@
  *   | "typemismatch"
  *   | "valid"
  *   | "valuemissing"
- * )} Validity 
+ * )} Validity
  */
+
+/**
+ * The built-in validities.
+ *
+ * @type {Validity[]}
+ * @constant
+ */
+const VALIDITIES = [
+	"badinput",
+	"customerror",
+	"patternmismatch",
+	"rangeoverflow",
+	"rangeunderflow",
+	"stepmismatch",
+	"toolong",
+	"tooshort",
+	"typemismatch",
+	"valid",
+	"valuemissing",
+];
+
+/**
+ * Options for the `reportby` attribute or the `reportBy` property.
+ *
+ * @readonly
+ * @enum {string}
+ */
+const ReportBy = {
+	// The ouput element displays and clears the validation message, if any, when
+	// its associated form control element receives an `input` event and when its
+	// associated form element receives a `submit` event.
+	ANY: "any",
+
+	// The output element only displays and clears the validation message, if any,
+	// when its associated form element receives a `submit` event.
+	SUBMIT: "submit",
+
+	// The output element only displays and clears the validation message, if any,
+	// when its `reportValidity{}` method is called with a developer-specified
+	// mechanism.
+	NONE: "none",
+};
 
 export class Validput extends HTMLOutputElement {
 	static get observedAttributes() {
 		return ["for", "validity", "reportby"];
 	}
 
-	/** @type {?FormControl} */
-	#control;
-
-	/** @type {!AbortController} */
 	#abort = new AbortController();
+	#control;
+  #validityList = new FakeDOMTokenList({
+  	supportedTokens: VALIDITIES,
+  });
 
 	/**
 	 * The associated form control element.
@@ -39,26 +83,52 @@ export class Validput extends HTMLOutputElement {
 	}
 
 	/**
+	 * When the output element displays the validation message, if any.
+	 *
+	 * @attr reportby
+	 * @default ReportBy.SUBMIT
+	 * @type {ReportBy=}
+	 */
+	reportBy = ReportBy.SUBMIT;
+
+	/**
 	 * The validites that the output element displays the validation message for.
 	 * it’s a space-seperated list of strings that match the Constraint Validation
 	 * API’s `ValidityState` keys, but in all-lower case.
-   *
+	 *
+	 * @attr validity
 	 * @type {Validity=}
 	 */
 	validity = "";
 
-	// TODO
-	reportby;
+	/**
+	 * A `DOMTokenList` that represents a list of valid values in the `validity`
+	 * attribute seperated by whitespaces.
+	 * @type {DOMTokenList}
+	 * @readonly
+	 */
+	get validityList() {
+		return this.#validityList;
+	};
 
 	disconnectedCallback() {
 		this.#abort.abort();
 	}
 
-	attributeChangedCallback(name) {
+	attributeChangedCallback(name, _, next) {
 		switch (name) {
 			case "for":
 				this.#control = this.getRootNode().getElementById(this.htmlFor);
 				this.#listenControlInvalid();
+				break;
+			case "validity":
+				this.validity = next;
+				this.#validityList.value = next;
+				break;
+			case "reportby":
+				this.reportBy = Object.values(ReportBy).includes(next)
+					? next
+					: ReportBy.SUBMIT;
 				break;
 		}
 	}
@@ -89,3 +159,4 @@ export class Validput extends HTMLOutputElement {
 		);
 	}
 }
+
