@@ -1,9 +1,9 @@
 {
   "name": "validput",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
+    "dev": "vite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,9 +17,11 @@
   ],
   "author": "zacky@marchbox.com",
   "license": "ISC",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/marchbox/validput/issues"
   },
-  "homepage": "https://github.com/marchbox/validput#readme"
+  "homepage": "https://github.com/marchbox/validput#readme",
+  "devDependencies": {
+    "vite": "^7.1.12"
+  }
 }

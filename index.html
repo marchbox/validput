@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Validput</title>
+<style>
+  body {
+    font: 100% / 1.5 sans-serif;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  output {
+    font: inherit;
+  }
+
+  .field {
+
+    label,
+    input,
+    select,
+    textarea,
+    output {
+      display: flow-root;
+    }
+  }
+</style>
+
+<h1>Validput</h1>
+<form>
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" required>
+    <output is="valid-put" for="email" validity="valuemissing"></output>
+  </div>
+  <p>
+    <button type="submit">Submit</button>
+  </p>
+</form>
+<script type="module" src="./src/index.js"></script>
+<script>
+  document.forms[0].addEventListener("submit", evt => {
+    evt.preventDefault();
+    evt.target.reportValidity();
+  });
+</script>
+
+</html>
