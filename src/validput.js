@@ -115,7 +115,11 @@ export class Validput extends HTMLOutputElement {
 		this.#abort.abort();
 	}
 
-	attributeChangedCallback(name, _, next) {
+	attributeChangedCallback(name, prev, next) {
+		if (prev === next) {
+			return;
+		}
+
 		switch (name) {
 			case "for":
 				this.#control = this.getRootNode().getElementById(this.htmlFor);
